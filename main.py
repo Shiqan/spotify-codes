@@ -1,6 +1,10 @@
 from spotify_codes.encoder import Encoder
 from spotify_codes.renderer import Renderer
 
+import os
+
+logo_path = os.path.join(os.path.dirname(__file__), "logo.png")
+
 
 def main():
     """Entry point for the application."""
@@ -16,7 +20,7 @@ def main():
     # Render to image
     renderer = Renderer()
     name = f"{media_ref}_code.png"
-    renderer.render(bar_heights, name)
+    renderer.render(bar_heights, name, logo_path=logo_path)
     print(f"Saved to {name}")
 
 
