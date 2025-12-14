@@ -24,7 +24,7 @@ jobs:
         version: "latest"
 
     - name: Install dependencies
-      run: uv pip install -r uv.lock
+      run: uv pip install -r uv.lock --system
 
     - name: Run Ruff linter
       run: ruff check .
