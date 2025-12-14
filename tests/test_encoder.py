@@ -70,13 +70,13 @@ class TestEncoder:
         """Test that all bar heights are in valid range (0-7)."""
         bar_heights = self.encoder.encode(media_ref)
 
-        assert (
-            len(bar_heights) > 0
-        ), f"No bar heights generated for media_ref {media_ref}"
+        assert len(bar_heights) > 0, (
+            f"No bar heights generated for media_ref {media_ref}"
+        )
 
-        assert all(
-            0 <= height <= 7 for height in bar_heights
-        ), f"Invalid bar heights {bar_heights} for media_ref {media_ref}"
+        assert all(0 <= height <= 7 for height in bar_heights), (
+            f"Invalid bar heights {bar_heights} for media_ref {media_ref}"
+        )
 
     @pytest.mark.parametrize(
         "media_ref,expected",

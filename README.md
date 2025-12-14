@@ -20,25 +20,29 @@ cd spotify-codes
 ```
 
 2. Create a virtual environment:
+
+(if needed, install `uv` first)
 ```bash
-python -m venv venv
+pip install uv
+```
+
+```bash
+uv venv
 ```
 
 3. Activate the virtual environment:
-   - On macOS/Linux:
-   ```bash
-   source venv/bin/activate
-   ```
-   - On Windows:
-   ```bash
-   venv\Scripts\activate
-   ```
-
-   You should see `(venv)` in your terminal prompt when it's active.
+- On macOS/Linux:
+```bash
+.venv/bin/activate
+```
+- On Windows:
+```bash
+.venv\Scripts\activate
+```
 
 4. Install dependencies:
 ```bash
-pip install -r requirements.txt
+uv pip install -r uv.lock
 ```
 
 ## Development
@@ -55,13 +59,24 @@ python -m spotify_codes
 pytest
 ```
 
+### Running linter
+
+```bash
+uvx ruff check 
+```
+
+```bash
+uvx ruff format 
+```
+
 ### Adding Dependencies
 
 When you add a new package, install it and update `requirements.txt`:
 
 ```bash
-pip install package_name
-pip freeze > requirements.txt
+uv pip install package-name
+uv pip freeze > requirements.txt
+uv pip compile requirements.txt -o uv.lock
 ```
 
 Then commit the updated `requirements.txt` file.
@@ -70,15 +85,16 @@ Then commit the updated `requirements.txt` file.
 
 ```
 spotify-codes/
-├── venv/
+├── .venv/
 ├── spotify_codes/
 │   ├── __init__.py
-│   └── main.py
+│   ├── encoder.py
 │   └── ...etc
 ├── tests/
 │   ├── __init__.py
-│   └── test_main.py
+│   └── test_encoder.py
 │   └── ...etc
+├── main.py
 ├── requirements.txt
 ├── .gitignore
 └── README.md
