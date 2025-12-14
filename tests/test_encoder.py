@@ -1,5 +1,5 @@
 import pytest
-from spotify_codes.encoder import Encoder
+from spotify_codes import Encoder
 
 
 class TestEncoder:

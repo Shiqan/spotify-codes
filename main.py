@@ -1,17 +1,14 @@
-from spotify_codes.encoder import Encoder
-from spotify_codes.decoder import Decoder
-from spotify_codes.renderer import Renderer
-
+from spotify_codes import Encoder, Decoder, Renderer, Parser
 import os
 
-logo_path = os.path.join(os.path.dirname(__file__), "logo.png")
+LOGO_PATH = os.path.join(os.path.dirname(__file__), "logo.png")
 
 
 def main():
     """Entry point for the application."""
     # Example: encode a media reference to a barcode
-    # media_ref = 57639171874
-    media_ref = 57268659651
+    media_ref = 57639171874
+    # media_ref = 57268659651
 
     encoder = Encoder()
     bar_heights = encoder.encode(media_ref)
@@ -25,10 +22,15 @@ def main():
     assert media_ref == decoded_ref, "Decoded reference does not match original!"
 
     # Render to image
-    renderer = Renderer()
+    renderer = Renderer(LOGO_PATH)
     name = f"{media_ref}_code.png"
-    renderer.render(bar_heights, name, logo_path=logo_path)
+    renderer.render(bar_heights, name)
     print(f"Saved to {name}")
+
+    parser = Parser()
+    parsed_heights = parser.parse(name)
+    print(f"Parsed Bar Heights: {parsed_heights}")
+    assert bar_heights == parsed_heights, "Parsed heights do not match original!"
 
 
 if __name__ == "__main__":

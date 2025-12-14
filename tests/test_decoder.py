@@ -1,6 +1,6 @@
 from typing import List
 import pytest
-from spotify_codes.decoder import Decoder
+from spotify_codes import Decoder
 
 
 class TestDecoder:

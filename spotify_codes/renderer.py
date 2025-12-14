@@ -5,30 +5,35 @@ from PIL import Image, ImageDraw
 class Renderer:
     def __init__(
         self,
+        logo_path: str,
         bar_width: int = 8,
         bg_color: str = "black",
         bar_color: str = "white",
         bar_padding: int = 8,
+        height: int = 100,
     ):
         """
         Initialize renderer.
 
         Args:
-            bar_width: Width of each bar in pixels (default 20)
+            logo_path: Path to logo image (PNG or SVG) - required
+            bar_width: Width of each bar in pixels (default 8)
             bg_color: Background color (default black)
             bar_color: Bar color (default white)
-            bar_padding: Padding between bars in pixels (default 2)
+            bar_padding: Padding between bars in pixels (default 8)
+            height: Height of the output image in pixels (default 100)
         """
+        self.logo_path = logo_path
         self.bar_width = bar_width
         self.bg_color = bg_color
         self.bar_color = bar_color
         self.bar_padding = bar_padding
+        self.height = height
 
     def render(
         self,
         bar_heights: List[int],
         filename: str = "code.png",
-        logo_path: Optional[str] = None,
         logo_padding: int = 10,
     ):
         """
@@ -37,7 +42,6 @@ class Renderer:
         Args:
             bar_heights: List of bar heights (0-7)
             filename: Output filename
-            logo_path: Path to logo image (PNG or SVG)
             logo_padding: Padding between logo and bars in pixels (default 10)
         """
         if len(bar_heights) != 23:
@@ -46,33 +50,30 @@ class Renderer:
         if not all(0 <= h <= 7 for h in bar_heights):
             raise ValueError("Bar heights must be between 0 and 7")
 
-        logo_size = 10 * self.bar_width
+        if not self.logo_path:
+            raise ValueError("Logo path must be provided")
+
+        logo_img = Image.open(self.logo_path).convert("RGBA")
+        # Logo height equals max bar height (7 + 1) * bar_width
+        logo_size = logo_img.height
+
         bars_width = (
             len(bar_heights) * self.bar_width
             + (len(bar_heights) - 1) * self.bar_padding
         )
-        width = (
-            (logo_size + logo_padding + bars_width + 20)
-            if logo_path
-            else (20 + bars_width + 20)
-        )
-        height = 10 * self.bar_width + 20
-        center_y = height // 2
+        width = logo_size + logo_padding + bars_width + 20
+        center_y = self.height // 2
 
-        img = Image.new("RGB", (width, height), color=self._color_to_rgb(self.bg_color))
+        img = Image.new(
+            "RGB", (width, self.height), color=self._color_to_rgb(self.bg_color)
+        )
         draw = ImageDraw.Draw(img)
 
-        bars_start_x = 0
-        if logo_path:
-            logo_img = Image.open(logo_path).convert("RGBA")
-            logo_img = logo_img.resize((logo_size, logo_size), Image.Resampling.LANCZOS)
+        logo_img = logo_img.resize((logo_size, logo_size), Image.Resampling.LANCZOS)
+        logo_y = (self.height - logo_size) // 2
+        img.paste(logo_img, (0, logo_y), logo_img)
 
-            logo_y = (height - logo_size) // 2
-            img.paste(logo_img, (0, logo_y), logo_img)
-            bars_start_x = logo_size + logo_padding
-        else:
-            bars_start_x = 20
-
+        bars_start_x = logo_size + logo_padding
         bar_heights = [h + 1 for h in bar_heights]
         for i, bar_height in enumerate(bar_heights):
             x0 = bars_start_x + i * (self.bar_width + self.bar_padding)

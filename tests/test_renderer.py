@@ -1,11 +1,14 @@
 import pytest
-from spotify_codes.renderer import Renderer
+from pathlib import Path
+from spotify_codes import Renderer
+
+LOGO_PATH = Path(__file__).parent.parent / "logo.png"
 
 
 class TestRenderer:
     def setup_method(self):
         """Set up test fixtures."""
-        self.renderer = Renderer()
+        self.renderer = Renderer(str(LOGO_PATH))
         self.test_output = "test_output.png"
 
     def test_render_invalid_bar_count(self):
@@ -51,6 +54,8 @@ class TestRenderer:
         assert self.renderer._color_to_rgb("black") == (0, 0, 0)
         assert self.renderer._color_to_rgb("white") == (255, 255, 255)
         assert self.renderer._color_to_rgb("red") == (255, 0, 0)
+        assert self.renderer._color_to_rgb("green") == (0, 255, 0)
+        assert self.renderer._color_to_rgb("blue") == (0, 0, 255)
 
     def test_color_to_rgb_invalid(self):
         """Test that invalid color raises error."""

@@ -1,6 +1,7 @@
 from typing import List
 import numpy as np
 
+
 class Decoder:
     """Decodes bar heights back into media reference."""
 
@@ -142,19 +143,22 @@ class Decoder:
     ) -> List[int]:
         """
         Compute 45-bit convolutional code using the inverse generator matrix.
-        
+
         Multiplies the input bit vector with each column of the inverse
         convolutional generator matrix, computing the dot product modulo 2
         for each column to produce 45 output bits.
-        
+
         Args:
             bits: List of 45 input bits for convolutional decoding
             generator: 45x45 inverse convolutional generator matrix
-            
+
         Returns:
             List of 45 encoded output bits
         """
-        return [sum(int(a) * int(b) for a, b in zip(bits, col)) % 2 for col in zip(*generator)]
+        return [
+            sum(int(a) * int(b) for a, b in zip(bits, col)) % 2
+            for col in zip(*generator)
+        ]
 
     def _check_crc(self, bits: List[int]) -> bool:
         """
