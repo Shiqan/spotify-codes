@@ -1,6 +1,4 @@
 from typing import List
-import numpy as np
-
 
 class Decoder:
     """Decodes bar heights back into media reference."""

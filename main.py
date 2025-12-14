@@ -7,8 +7,8 @@ LOGO_PATH = os.path.join(os.path.dirname(__file__), "logo.png")
 def main():
     """Entry point for the application."""
     # Example: encode a media reference to a barcode
-    media_ref = 57639171874
-    # media_ref = 57268659651
+    # media_ref = 57639171874
+    media_ref = 57268659651
 
     encoder = Encoder()
     bar_heights = encoder.encode(media_ref)
