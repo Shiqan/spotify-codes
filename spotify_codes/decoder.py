@@ -1,5 +1,6 @@
 from typing import List
 
+
 class Decoder:
     """Decodes bar heights back into media reference."""
 

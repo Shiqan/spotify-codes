@@ -62,11 +62,11 @@ pytest
 ### Running linter
 
 ```bash
-uvx ruff check 
+uvx ruff check
 ```
 
 ```bash
-uvx ruff format 
+uvx ruff format
 ```
 
 ### Adding Dependencies
