@@ -10,11 +10,13 @@ def main():
         57639171874,
         5726865965,
         26560102031,
+        57268659651,
+        67775490487,
     ]
 
     encoder = Encoder()
     decoder = Decoder()
-    renderer = Renderer(LOGO_PATH)
+    renderer = Renderer(LOGO_PATH, bg_color="#fb6c98")
     parser = Parser()
 
     for media_ref in examples:
