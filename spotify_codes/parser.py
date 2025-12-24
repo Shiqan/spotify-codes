@@ -50,10 +50,58 @@ class Parser:
         histogram = img.histogram()
         threshold = self._otsu_threshold(histogram)
 
-        # Create binary image (inverted: bars are white)
-        binary_im = img.point(lambda p: 255 if p > threshold else 0)
+        # Try both: bars as white and bars as dark; pick the better result
+        bar_heights_white = self._extract_bars(
+            img, threshold, invert=False, width=width, height=height
+        )
+        bar_heights_dark = self._extract_bars(
+            img, threshold, invert=True, width=width, height=height
+        )
 
-        # Scan columns to find bars and their heights
+        # Choose the polarity that yields valid bars (prefer one with 24+ detected bars)
+        if len(bar_heights_white) >= len(bar_heights_dark):
+            bar_heights = bar_heights_white
+        else:
+            bar_heights = bar_heights_dark
+
+        if not bar_heights:
+            raise ValueError("No bars found in image")
+
+        # First bar is the Spotify logo (reference height)
+        logo_height = bar_heights[0]
+
+        # Encode bars relative to logo (should be 23 bars total)
+        sequence = []
+        for bar_height in bar_heights[1:]:
+            ratio = bar_height / logo_height
+            ratio *= 8
+            ratio //= 1
+            sequence.append(int(ratio - 1))
+
+        return sequence
+
+    def _extract_bars(
+        self, img: Image.Image, threshold: int, invert: bool, width: int, height: int
+    ) -> List[int]:
+        """Extract bar heights using a specific threshold polarity.
+
+        Args:
+            img: Grayscale image
+            threshold: Otsu threshold value
+            invert: If True, bars are dark (< threshold); else bars are white (> threshold)
+            width: Image width
+            height: Image height
+
+        Returns:
+            List of detected bar heights
+        """
+        if invert:
+            # Bars are dark: pixels < threshold become white (255)
+            binary_im = img.point(lambda p: 255 if p < threshold else 0)
+        else:
+            # Bars are white: pixels > threshold become white (255)
+            binary_im = img.point(lambda p: 255 if p > threshold else 0)
+
         bar_heights = []
         in_bar = False
         current_bar_min = height
@@ -90,18 +138,4 @@ class Parser:
                     bar_heights.append(bar_height)
                     in_bar = False
 
-        if not bar_heights:
-            raise ValueError("No bars found in image")
-
-        # First bar is the Spotify logo (reference height)
-        logo_height = bar_heights[0]
-
-        # Encode bars relative to logo (should be 23 bars total)
-        sequence = []
-        for bar_height in bar_heights[1:]:
-            ratio = bar_height / logo_height
-            ratio *= 8
-            ratio //= 1
-            sequence.append(int(ratio - 1))
-
-        return sequence
+        return bar_heights

@@ -1,7 +1,25 @@
+import random
 import tempfile
+import pytest
 from pathlib import Path
 from PIL import Image
 from spotify_codes import Parser, Renderer
+from spotify_codes.renderer import ACCEPTABLE_BG_COLORS
+
+
+def _hex_to_rgb(hex_color: str) -> tuple[int, int, int]:
+    h = hex_color.lstrip("#")
+    return (int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16))
+
+
+def _is_dark(hex_color: str) -> bool:
+    r, g, b = _hex_to_rgb(hex_color)
+    lum = 0.2126 * r + 0.7152 * g + 0.0722 * b
+    return lum < 140
+
+
+DARK_BACKGROUNDS = sorted([c for c in ACCEPTABLE_BG_COLORS if _is_dark(c)])
+LIGHT_BACKGROUNDS = sorted([c for c in ACCEPTABLE_BG_COLORS if not _is_dark(c)])
 
 LOGO_PATH = Path(__file__).parent.parent / "logo.png"
 
@@ -32,31 +50,7 @@ class TestParser:
 
     def test_parse_with_renderer_output(self):
         """Test parsing an image created by the renderer."""
-        original_heights = [
-            0,
-            5,
-            7,
-            4,
-            1,
-            4,
-            6,
-            6,
-            0,
-            2,
-            4,
-            7,
-            3,
-            4,
-            6,
-            7,
-            5,
-            5,
-            6,
-            0,
-            5,
-            0,
-            0,
-        ]
+        original_heights = [0,0,3,6,2,5,1,7,7,1,2,6,7,4,5,3,7,1,2,6,0,4,0] # fmt: skip
 
         with tempfile.TemporaryDirectory() as tmpdir:
             # Render the image
@@ -107,31 +101,7 @@ class TestParser:
     def test_parse_different_bar_widths(self):
         """Test parsing with different bar widths."""
         for bar_width in [6, 8, 10, 12]:
-            heights = [
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-                0,
-                1,
-                2,
-                3,
-                4,
-                5,
-                6,
-                7,
-            ]
+            heights = [1,2,3,4,5,6,7,0,1,2,3,4,5,6,7,0,1,2,3,4,5,6,7] # fmt: skip
 
             with tempfile.TemporaryDirectory() as tmpdir:
                 image_path = Path(tmpdir) / f"test_width_{bar_width}.png"
@@ -157,7 +127,7 @@ class TestParser:
 
     def test_parse_extreme_heights(self):
         """Test parsing with extreme bar heights (all 0s and all 7s)."""
-        # Test all zeros\
+        # Test all zeros
         zeros = [0] * 23
         with tempfile.TemporaryDirectory() as tmpdir:
             image_path = Path(tmpdir) / "test_zeros.png"
@@ -173,41 +143,40 @@ class TestParser:
             result = self.parser.parse(str(image_path))
             assert len(result) == 23
 
-    def test_parse_roundtrip_accuracy(self):
-        """Test that encoding/decoding preserves bar heights reasonably well."""
-        original_heights = [
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-            0,
-            1,
-            2,
-            3,
-            4,
-            5,
-            6,
-            7,
-        ]
+    @pytest.mark.parametrize(
+        "bg_color", DARK_BACKGROUNDS, ids=[c for c in DARK_BACKGROUNDS]
+    )
+    def test_parse_roundtrip_accuracy_dark_background(self, bg_color: str):
+        """Test that encoding/decoding preserves heights for each dark bg."""
+        original_heights = [random.randint(0, 7) for _ in range(23)]
+
+        # Use white bars on dark backgrounds so parser finds white bars
+        renderer = Renderer(str(LOGO_PATH), bg_color=bg_color, bar_color="#ffffff")
 
         with tempfile.TemporaryDirectory() as tmpdir:
-            image_path = Path(tmpdir) / "roundtrip.png"
-            self.renderer.render(original_heights, str(image_path))
+            image_path = Path(tmpdir) / f"roundtrip_{bg_color[1:]}.png"
+            renderer.render(original_heights, str(image_path))
 
             parsed_heights = self.parser.parse(str(image_path))
 
-            # Due to rounding and pixel quantization, exact match might not be possible
-            # but they should be very close (within 1)
+            # Due to rounding/pixel quantization, allow small tolerance
+            for original, parsed in zip(original_heights, parsed_heights):
+                assert abs(original - parsed) <= 1
+
+    @pytest.mark.parametrize(
+        "bg_color", LIGHT_BACKGROUNDS, ids=[c for c in LIGHT_BACKGROUNDS]
+    )
+    def test_parse_roundtrip_accuracy_light_background(self, bg_color: str):
+        """Roundtrip on light backgrounds using black bars."""
+        original_heights = [random.randint(0, 7) for _ in range(23)]
+
+        renderer = Renderer(str(LOGO_PATH), bg_color=bg_color, bar_color="#000000")
+
+        with tempfile.TemporaryDirectory() as tmpdir:
+            image_path = Path(tmpdir) / f"roundtrip_{bg_color[1:]}.png"
+            renderer.render(original_heights, str(image_path))
+
+            parsed_heights = self.parser.parse(str(image_path))
+
             for original, parsed in zip(original_heights, parsed_heights):
                 assert abs(original - parsed) <= 1
