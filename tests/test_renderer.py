@@ -27,17 +27,17 @@ class TestRenderer:
 
     def test_is_hex_color(self):
         """Test is hex color."""
-        assert self.renderer._is_hex_color("#000000") == True
-        assert self.renderer._is_hex_color("#ffffff") == True
-        assert self.renderer._is_hex_color("#ff0000") == True
-        assert self.renderer._is_hex_color("#00ff00") == True
-        assert self.renderer._is_hex_color("#0000ff") == True
+        assert self.renderer._is_hex_color("#000000")
+        assert self.renderer._is_hex_color("#ffffff")
+        assert self.renderer._is_hex_color("#ff0000")
+        assert self.renderer._is_hex_color("#00ff00")
+        assert self.renderer._is_hex_color("#0000ff")
 
     def test_invalid_is_hex_color(self):
         """Test that invalid hex colors raises error."""
-        assert self.renderer._is_hex_color("invalid") == False
-        assert self.renderer._is_hex_color("color") == False
-        assert self.renderer._is_hex_color("white") == False
+        assert not self.renderer._is_hex_color("invalid")
+        assert not self.renderer._is_hex_color("color")
+        assert not self.renderer._is_hex_color("white")
 
     def test_validate_bg_color(self):
         """Test background color validation."""

@@ -16,7 +16,7 @@ def main():
 
     encoder = Encoder()
     decoder = Decoder()
-    renderer = Renderer(LOGO_PATH, bg_color="#fb6c98")
+    renderer = Renderer(LOGO_PATH, bg_color="#543651")
     parser = Parser()
 
     for media_ref in examples:
