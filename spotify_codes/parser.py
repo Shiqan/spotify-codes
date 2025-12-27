@@ -83,24 +83,31 @@ class Parser:
     def _extract_bars(
         self, img: Image.Image, threshold: int, invert: bool, width: int, height: int
     ) -> List[int]:
-        """Extract bar heights using a specific threshold polarity.
+        """Extract bar heights using distance-based detection for pure white/black bars.
 
         Args:
             img: Grayscale image
-            threshold: Otsu threshold value
-            invert: If True, bars are dark (< threshold); else bars are white (> threshold)
+            threshold: Otsu threshold value (used to determine polarity)
+            invert: If True, bars are dark (close to 0); else bars are white (close to 255)
             width: Image width
             height: Image height
 
         Returns:
             List of detected bar heights
         """
+        # Distance threshold: pixels must be within this distance of pure white/black
+        # Strict threshold to reject off-white borders (e.g., 246) while accepting pure bars
+        DISTANCE_THRESHOLD = 8
+
+        # Create binary image by checking distance to pure white (255) or pure black (0)
         if invert:
-            # Bars are dark: pixels < threshold become white (255)
-            binary_im = img.point(lambda p: 255 if p < threshold else 0)
+            # Bars are dark: look for pixels close to 0
+            binary_im = img.point(lambda p: 255 if p <= DISTANCE_THRESHOLD else 0)
         else:
-            # Bars are white: pixels > threshold become white (255)
-            binary_im = img.point(lambda p: 255 if p > threshold else 0)
+            # Bars are white: look for pixels close to 255
+            binary_im = img.point(
+                lambda p: 255 if p >= (255 - DISTANCE_THRESHOLD) else 0
+            )
 
         bar_heights = []
         in_bar = False

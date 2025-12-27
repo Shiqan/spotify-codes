@@ -11,6 +11,23 @@ class TestRenderer:
         self.renderer = Renderer(str(LOGO_PATH))
         self.test_output = "test_output.png"
 
+    def test_renderer_rejects_same_bar_and_bg_color(self):
+        """
+        Test that Renderer raises ValueError when bar color equals background color.
+        This is a sanity check to prevent users from creating invisible barcodes.
+        """
+        # Test with white background and white bars
+        with pytest.raises(ValueError, match="cannot be the same as background color"):
+            Renderer(str(LOGO_PATH), bg_color="#ffffff", bar_color="#ffffff")
+
+        # Test with case-insensitive matching (uppercase white BG vs lowercase white bars)
+        with pytest.raises(ValueError, match="cannot be the same as background color"):
+            Renderer(str(LOGO_PATH), bg_color="#FFFFFF", bar_color="#ffffff")
+
+        # Test with black background and black bars
+        with pytest.raises(ValueError, match="cannot be the same as background color"):
+            Renderer(str(LOGO_PATH), bg_color="#010101", bar_color="#000000")
+
     def test_render_invalid_bar_count(self):
         """Test that render rejects wrong number of bars."""
         bar_heights = [0, 5, 7]

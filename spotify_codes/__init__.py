@@ -5,6 +5,16 @@ __version__ = "0.0.1"
 from spotify_codes.decoder import Decoder
 from spotify_codes.encoder import Encoder
 from spotify_codes.parser import Parser
-from spotify_codes.renderer import Renderer
+from spotify_codes.renderer import Renderer, ACCEPTABLE_BG_COLORS, ACCEPTABLE_BAR_COLORS
+from spotify_codes.detector import Detector, BarcodeResult
 
-__all__ = ["Parser", "Renderer", "Encoder", "Decoder"]
+__all__ = [
+    "Parser",
+    "Renderer",
+    "ACCEPTABLE_BG_COLORS",
+    "ACCEPTABLE_BAR_COLORS",
+    "Encoder",
+    "Decoder",
+    "Detector",
+    "BarcodeResult",
+]

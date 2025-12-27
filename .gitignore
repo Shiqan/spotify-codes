@@ -207,4 +207,6 @@ pip-selfcheck.json
 # End of https://www.toptal.com/developers/gitignore/api/python,visualstudiocode,venv
 
 *.png
+
 !logo.png
+!/tests/sample_barcodes/**/*.png

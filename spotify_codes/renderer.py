@@ -34,7 +34,7 @@ ACCEPTABLE_BG_COLORS = {
     "#543651",
 }
 
-ALLOWED_BAR_COLORS = {"#000000", "#ffffff"}
+ACCEPTABLE_BAR_COLORS = {"#000000", "#ffffff"}
 
 
 class Renderer:
@@ -54,8 +54,8 @@ class Renderer:
         Args:
             logo_path: Path to logo image (PNG or SVG) - required
             bar_width: Width of each bar in pixels (default 8)
-            bg_color: Background color in hex (default "#000000")
-            bar_color: Bar color in hex (default "#ffffff")
+            bg_color: Background color in hex (default "#010101"). See ACCEPTABLE_BG_COLORS for options.
+            bar_color: Bar color in hex (default "#ffffff"). See ACCEPTABLE_BAR_COLORS for options.
             bar_padding: Padding between bars in pixels (default 8)
             height: Height of the output image in pixels (default 100)
         """
@@ -64,6 +64,19 @@ class Renderer:
         # Validate and normalize colors
         self.bg_color = self._validate_bg_color(bg_color)
         self.bar_color = self._validate_bar_color(bar_color)
+
+        # Sanity check: bar color must differ from background color
+        if (
+            self.bg_color == "#010101"
+            and self.bar_color == "#000000"
+            or self.bg_color == "#ffffff"
+            and self.bar_color == "#ffffff"
+        ):
+            raise ValueError(
+                f"Bar color ({self.bar_color}) cannot be the same as background color ({self.bg_color}). "
+                "Bars must be visible against the background."
+            )
+
         self.bar_padding = bar_padding
         self.height = height
 
@@ -172,7 +185,7 @@ class Renderer:
             raise ValueError("Bar color must be a string")
 
         lower = color.lower()
-        if self._is_hex_color(color) and lower in ALLOWED_BAR_COLORS:
+        if self._is_hex_color(color) and lower in ACCEPTABLE_BAR_COLORS:
             return lower
 
         raise ValueError("Invalid bar color. Only black or white are allowed.")
