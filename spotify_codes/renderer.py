@@ -34,7 +34,10 @@ ACCEPTABLE_BG_COLORS = {
     "#543651",
 }
 
-ACCEPTABLE_BAR_COLORS = {"#000000", "#ffffff"}
+ACCEPTABLE_BAR_COLORS = {
+    "#000000",
+    "#ffffff",
+}
 
 
 class Renderer:
